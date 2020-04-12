@@ -1,6 +1,6 @@
 # DokuWiki::ResolveName
 
-Resolve relative and absolute DokuWiki page links. 
+Resolve relative and absolute DokuWiki page links.
 
 ## Synopsis
 

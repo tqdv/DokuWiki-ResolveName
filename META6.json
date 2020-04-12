@@ -1,6 +1,6 @@
 {
   "name": "DokuWiki::ResolveName",
-  "description": "Write me!",
+  "description": "Resolve relative and absolute DokuWiki page links",
   "version": "0.1.0",
   "perl": "6.*",
   "authors": [
