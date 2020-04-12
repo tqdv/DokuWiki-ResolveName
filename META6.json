@@ -1,0 +1,26 @@
+{
+  "name": "DokuWiki::ResolveName",
+  "description": "Write me!",
+  "version": "0.1.0",
+  "perl": "6.*",
+  "authors": [
+    "Tilwa Qendov"
+  ],
+  "auth": "github:tqdv",
+  "depends": [],
+  "build-depends": [],
+  "test-depends": [],
+  "provides": {
+    "DokuWiki::PageLink": "lib/DokuWiki/PageLink.rakumod",
+    "DokuWiki::PageName": "lib/DokuWiki/PageName.rakumod",
+    "DokuWiki::ResolveName": "lib/DokuWiki/ResolveName.rakumod",
+    "DokuWiki::Utils": "lib/DokuWiki/Utils.rakumod"
+  },
+  "resources": [],
+  "license": "Artistic-2.0",
+  "tags": [
+    "DokuWiki"
+  ],
+  "api": "0",
+  "source-url": "gitL//github.com/tqdv/DokuWiki-ResolveName.git"
+}

@@ -1,0 +1,7 @@
+use Test;
+use DokuWiki::Utils;
+
+plan 2;
+
+is ltrim-colon(':aa'), 'aa', "ltrim works";
+is ltrim-colon('::aa'), ':aa', "ltrim-colon only eats one";

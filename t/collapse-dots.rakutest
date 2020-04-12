@@ -1,0 +1,15 @@
+use Test;
+use DokuWiki::Utils;
+
+plan 5;
+
+my @tests =
+	(['', '', 'from', '', 'root', ''],  ['from', 'root'],   "Removes empty"),
+	(['..', '..'],                      [],                 "Doesn't directly overflow"),
+	(['ns', '..', '..'],                [],                 "Doesn't indirectly overflow"),
+	(['.', 'current', '.'],             ['current'],        "Ignores dots"),
+	(['root', 'first', '..', 'second'], ['root', 'second'], "Double dots go back a step");
+
+for @tests -> ($code, $expect, $desc) {
+	is collapse-dots($code), $expect, $desc;
+}

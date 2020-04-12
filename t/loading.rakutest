@@ -1,0 +1,8 @@
+use Test;
+
+plan 4;
+
+use-ok 'DokuWiki::ResolveName', "ResolveName loads";
+use-ok 'DokuWiki::PageName',    "PageName loads";
+use-ok 'DokuWiki::PageLink',    "PageLink loads";
+use-ok 'DokuWiki::Utils',       "Utils load";
