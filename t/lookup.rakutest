@@ -31,7 +31,7 @@ subtest "Roundtrips" => {
 };
 
 subtest "Lookups" => {
-	plan 8;
+	plan 8 + 1;
 
 	# FIXME: improve test
 	my @lookups =
@@ -47,4 +47,6 @@ subtest "Lookups" => {
 	for @lookups -> ($start, $link, $expect, $desc) {
 		is resolve-name($start, $link), $expect, $desc;
 	}
+
+	is resolve-name('sample:page', '.:', start => 'index'), ':sample:index', "Setting the start optional key works";
 };

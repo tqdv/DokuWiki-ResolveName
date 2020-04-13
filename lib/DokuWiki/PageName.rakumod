@@ -17,36 +17,39 @@ $page.resolve-name('.link:target');
 has Str @.namespaces; #= parent namespaces
 has Str $.name;
 
+has Str $.start; #= DokuWiki C<startpage> option
+
 =head2 CONSTRUCTORS
 
-#| Creates a PageName object from a list of parts
-multi method new (@bits) {
-	my @parts = @bits;
+=para
+The :$start named argument is the name of the default namespace start page.
 
-	#| A trailing colon (as in C<:youtube:channel:>) means C<:youtube:channel:start>
+#| Creates a PageName object from a list of parts
+multi method new (@bits, :$start is copy) {
+	$start //= 'start';
+
+	my @parts = @bits;
+	#| A trailing colon means the start page (eg. C<:youtube:channel:> -> C<:youtube:channel:start>)
 	if @parts[*-1] eq '' {
-		@parts[*-1] = $START_PAGE;
+		@parts[*-1] = $start;
 	}
 	collapse-dots(@parts);
 	@parts .= map: { colon-normalize($_) };
 
-	my $pagename = @parts.pop // $START_PAGE;
+	my $pagename = @parts.pop // $start;
 
-	my $page = DokuWiki::PageName.new: namespaces => @parts, name => $pagename;
-	# FIXME: $page.normalize;
-
-	return $page;
-}
-
-multi method new (Str $string) {
-	#| A page name is the same as a link, we just always consider it to start at root
-	#| Since the string might be in the form of C<..link> or C<.link>, we let PageLink split that for us
-	self.new: DokuWiki::PageLink.new($string)
+	return DokuWiki::PageName.new: namespaces => @parts, name => $pagename, :$start;
 }
 
 #| Creates a PageName object from a link, assuming it's absolute
-multi method new (DokuWiki::PageLink $link) {
-	self.new: $link.parts
+multi method new (DokuWiki::PageLink $link, :$start) {
+	self.new: $link.parts, :$start
+}
+
+multi method new (Str $string, :$start) {
+	#| A page name is the same as a link, we just always consider it to start at root
+	#| Since the string might be in the form of C<..link> or C<.link>, we let PageLink split that for us
+	self.new: DokuWiki::PageLink.new($string), :$start
 }
 
 =head2 CONVERSIONS
@@ -57,15 +60,18 @@ method gist { ':' ~ (|@!namespaces, $!name).join(':') }
 
 =head2 METHODS
 
-multi method resolve-name (DokuWiki::PageLink $link --> DokuWiki::PageName) {
+=head3 .resolve-name
+You can pass a named parameter C<start> which is the value of DokuWiki's C<startpage> option. It defaults to the DokuWiki default of C<start>.
+
+multi method resolve-name (DokuWiki::PageLink $link, :$start = $!start --> DokuWiki::PageName) {
 	if $link.is-absolute {
-		return self.new: $link
+		return self.new: $link, :$start
 	} else {
 		# Otherwise, handle relative link
-		return self.new: (|@!namespaces, |$link.parts)
+		return self.new: (|@!namespaces, |$link.parts), :$start
 	}
 }
 
-multi method resolve-name (Str $target --> DokuWiki::PageName) {
-	self.resolve-name: DokuWiki::PageLink.new($target)
+multi method resolve-name (Str $target, :$start --> DokuWiki::PageName) {
+	self.resolve-name: DokuWiki::PageLink.new($target), :$start
 }
