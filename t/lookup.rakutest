@@ -48,5 +48,5 @@ subtest "Lookups" => {
 		is resolve-name($start, $link), $expect, $desc;
 	}
 
-	is resolve-name('sample:page', '.:', start => 'index'), ':sample:index', "Setting the start optional key works";
+	is resolve-name('sample:page', '.:', startpage => 'index'), ':sample:index', "Setting the start optional key works";
 };

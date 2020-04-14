@@ -1,7 +1,7 @@
 use DokuWiki::PageLink;
 use DokuWiki::Utils;
-
-our $START_PAGE = 'start';
+use DokuWiki::Config;
+use DokuWiki::Config::PageName;
 
 #| Represents an actual page, based on its absolute name
 unit class DokuWiki::PageName;
@@ -17,39 +17,42 @@ $page.resolve-name('.link:target');
 has Str @.namespaces; #= parent namespaces
 has Str $.name;
 
-has Str $.start; #= DokuWiki C<startpage> option
+has Can::PageName::Config $.config = DokuWiki::PageName::Config.new; #= DokuWiki config object
 
 =head2 CONSTRUCTORS
 
 =para
-The :$start named argument is the name of the default namespace start page.
+The :$config named argument is the application configuration object.
+IDEA: make it so that you only need to supply the minimum configuration.
 
 #| Creates a PageName object from a list of parts
-multi method new (@bits, :$start is copy) {
-	$start //= 'start';
+multi method new (@bits, :$config is copy) {
+	$config //= DokuWiki::Config.new;
 
 	my @parts = @bits;
+	# FIXME: it's more complex that this
 	#| A trailing colon means the start page (eg. C<:youtube:channel:> -> C<:youtube:channel:start>)
 	if @parts[*-1] eq '' {
-		@parts[*-1] = $start;
+		@parts[*-1] = $config.startpage;
 	}
 	collapse-dots(@parts);
 	@parts .= map: { colon-normalize($_) };
 
-	my $pagename = @parts.pop // $start;
+	my $pagename = @parts.pop // $config.startpage;
 
-	return DokuWiki::PageName.new: namespaces => @parts, name => $pagename, :$start;
+	return DokuWiki::PageName.new: namespaces => @parts, name => $pagename, :$config;
 }
 
 #| Creates a PageName object from a link, assuming it's absolute
-multi method new (DokuWiki::PageLink $link, :$start) {
-	self.new: $link.parts, :$start
+multi method new (DokuWiki::PageLink $link, :$config) {
+	self.new: ($link.parts), :$config
 }
 
-multi method new (Str $string, :$start) {
+#| Creates a PageName object from a PageLink string
+multi method new (Str $string, :$config) {
 	#| A page name is the same as a link, we just always consider it to start at root
 	#| Since the string might be in the form of C<..link> or C<.link>, we let PageLink split that for us
-	self.new: DokuWiki::PageLink.new($string), :$start
+	self.new: DokuWiki::PageLink.new($string), :$config
 }
 
 =head2 CONVERSIONS
@@ -61,17 +64,16 @@ method gist { ':' ~ (|@!namespaces, $!name).join(':') }
 =head2 METHODS
 
 =head3 .resolve-name
-You can pass a named parameter C<start> which is the value of DokuWiki's C<startpage> option. It defaults to the DokuWiki default of C<start>.
 
-multi method resolve-name (DokuWiki::PageLink $link, :$start = $!start --> DokuWiki::PageName) {
+multi method resolve-name (DokuWiki::PageLink $link --> DokuWiki::PageName) {
 	if $link.is-absolute {
-		return self.new: $link, :$start
+		return self.new: $link, :$!config
 	} else {
 		# Otherwise, handle relative link
-		return self.new: (|@!namespaces, |$link.parts), :$start
+		return self.new: (|@!namespaces, |$link.parts), :$!config
 	}
 }
 
-multi method resolve-name (Str $target, :$start --> DokuWiki::PageName) {
-	self.resolve-name: DokuWiki::PageLink.new($target), :$start
+multi method resolve-name (Str $target --> DokuWiki::PageName) {
+	self.resolve-name: DokuWiki::PageLink.new($target)
 }
