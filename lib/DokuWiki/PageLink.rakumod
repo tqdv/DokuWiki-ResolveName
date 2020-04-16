@@ -9,16 +9,14 @@ has @.parts;
 =head2 CONSTRUCTOR
 
 #| Create an object from the string representation
-multi method new (Str $string) {
-	my $s = $string;
-
+multi method new (Str $string is copy) {
 	# Starts with . or .. -> Add a colon if needed
-	if $s ~~ /^ ('.' ** 1..2) <!before '.'|':'|$ >/ {
+	if $string ~~ /^ ('.' ** 1..2) <!before '.'|':'|$ >/ {
 		my $prefix = $0;
-		$s ~~ s/^ $prefix /$prefix:/;
+		$string ~~ s/^ $prefix /$prefix:/;
 	}
 
-	self.new: parts => $s.split(':');
+	self.new: parts => $string.split(':');
 }
 
 =head2 CONVERSIONS
@@ -29,8 +27,10 @@ method gist { @!parts.join(':') }
 
 =head2 METHODS
 
+method is-empty (--> Bool) { @.parts eqv [''] }
+
 method is-absolute (--> Bool) { ! self.is-relative }
 
 method is-relative (--> Bool) {
-	(@!parts.head // '') eq '.'|'..' || @!parts.elems == 1
+	(@!parts[0] // '') eq '.'|'..' || @!parts.elems == 1
 }

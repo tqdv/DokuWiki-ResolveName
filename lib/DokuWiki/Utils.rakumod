@@ -1,11 +1,11 @@
 unit module DokuWiki::Utils;
 
-#| Pops the array or returns Any
+#| Pops the array or returns Nil
 sub pop-null (@arr) is export {
-	@arr.pop // Any
+	@arr.pop // Nil
 }
 
-#| Given an array of strings, collapse .., ., and ø
+#| Given an array of strings, collapse .., ., and ε and return it
 sub collapse-dots (@arr) is export {
 	my @ret;
 
@@ -17,7 +17,7 @@ sub collapse-dots (@arr) is export {
 		@ret.push: $elt;
 	}
 
-	@arr = @ret;
+	return @ret;
 }
 
 #| Trims a single colon from the left of a string

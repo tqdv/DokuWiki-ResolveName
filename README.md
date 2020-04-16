@@ -43,7 +43,7 @@ This module provides a functional and object-oriented interface to resolving Dok
 The reference pages:
 * <https://www.dokuwiki.org/namespaces>
 * <https://www.dokuwiki.org/pagename>
-* The [resolve_pageid function in pageutils.php](https://xref.dokuwiki.org/reference/dokuwiki/nav.html?_functions/internallink.html) on DokuWiki's XRef
+* The [resolve_pageid function in pageutils.php](https://xref.dokuwiki.org/reference/dokuwiki/_functions/resolve_pageid.html) on DokuWiki's XRef
 
 ## Credits
 

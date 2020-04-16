@@ -1,0 +1,9 @@
+use Test;
+use DokuWiki::Config;
+use DokuWiki::PageName::Config;
+use DokuWiki::PageName::Can;
+
+plan 2;
+
+ok DokuWiki::Config.new ~~ Can::PageName::Config, "Config ~~ Can::PageName::Config";
+ok DokuWiki::PageName::Config.new ~~ Can::PageName::Config, "PageName::Config ~~ Can::PageName::Config";

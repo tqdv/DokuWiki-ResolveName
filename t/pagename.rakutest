@@ -1,0 +1,12 @@
+use Test;
+use DokuWiki::PageName;
+
+plan 1;
+{
+	my DokuWiki::PageName $page .= new('some:page');
+	my $new = $page.resolve-name('');
+	$new.namespaces.unshift('buy');
+
+	#diag $page ~ " vs. " ~ $new;
+	ok $page.namespaces !eqv $new.namespaces, "Resolving a link creates a new independant object";
+}
