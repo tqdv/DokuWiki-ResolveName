@@ -7,21 +7,32 @@ unit module DokuWiki::ResolveName;
 =begin SYNOPSIS
 use DokuWiki::ResolveName;
 
-resolve-name('current:page', '.link:target')
-#> Returns an object that stringifies to a canonical pagename
+# Returns an object that stringifies to a canonical pagename
+resolve-name('current:page', '.link:target') #> ':current:link:target'
+
+# You can pass optional named arguments
+resolve-name('playground:playground', '.:',
+    pages => ('start', 'playground', 'playground:playground')
+    startpage => 'index'
+) #> ':playground'
 =end SYNOPSIS
 
 =head2 FUNCTIONS
 
 =head3 resolve-name
-You can pass a named parameter C<startpage> which is the value of DokuWiki's C<startpage> option. It defaults to the DokuWiki default of C<start>.
-The pages named array is the list of existing pages. It is used for namespace link resolution.
+
+=begin para
+Optional named arguments:
+- C<startpage> corresponds to DokuWiki's startpage config option.
+- C<pages> is the list of existing pages. It is used for namespace link resolution
+
+=end para
 
 #| Functional interface
-multi sub resolve-name (Str $from, $target, :@pages, *%h --> DokuWiki::PageName) is export {
+multi sub resolve-name (Str $from, $target, *%h --> DokuWiki::PageName) is export {
 	my $app;
-	with @pages {
-		$app = DokuWiki::PageName::App.new: :@pages;
+	with %h<pages> {
+		$app = DokuWiki::PageName::App.new: pages => %h<pages>:delete.List;
 	}
 
 	my DokuWiki::PageName::Config $config .= new: |%h;

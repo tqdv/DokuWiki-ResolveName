@@ -3,57 +3,28 @@ use DokuWiki::PageName;
 use DokuWiki::PageLink;
 use DokuWiki::ResolveName;
 
-plan 2;
+plan 10 + 1 + 3 + 1;
 
-subtest "Roundtrips" => {
-	plan 4 + 6;
+my @lookups =
+	('sample:page', 'follow',        ':sample:follow',     "Simple link"),
+	('sample:page', '.same:space',   ':sample:same:space', "Same namespace link"),
+	('sample:page', '..previous',    ':previous',          "Previous namespace"),
+	('sample:page', 'absolute:link', ':absolute:link',     "Absolute link"),
+	('sample:page', '.:a::b',        ':sample:a:b',        "Collapse colons"),
+	('sample:page', '..:..:ignored:..::index', ':index',   "Links do not overflow"),
+	('playground:playground', '.',   ':playground',        "Single dot links to a page and not the namespace start"),
+	('playground:playground', '::',  ':start',             "Only-colon link goes to root start"),
+	('sample:page', '',              ':sample:page',       "Empty link links to current page"),
+	('sample:page', '---',           ':sample',      "Link of invalid characters is treated as `.`" );
 
-	my @links =
-		('simple:link',          'simple:link',          "Link roundtrip"),
-		(':colons:and:cologne:', ':colons:and:cologne:', "Leading and trailing colons in link"),
-		('.leading:dot',         '.:leading:dot',        "Leading single dot is normalized"),
-		('..:double:dot',        '..:double:dot',        "Leading double dot is normalized");
+for @lookups -> ($start, $link, $expect, $desc) {
+	is resolve-name($start, $link), $expect, $desc;
+}
 
-	for @links -> ($code, $expect, $desc) {
-		is DokuWiki::PageLink.new($code), $expect, $desc;
-	}
+is resolve-name('sample:page', '.:', startpage => 'index'), ':sample:index', "Setting the start optional key works";
 
-	my @pages =
-		(':absolute:page:path', ':absolute:page:path', "Absolute page roundtrip"),
-		('relative:page:path',  ':relative:page:path', "Relative page roundtrip"),
-		('some:space:',         ':some:space:start',   "Missing page name"),
-		('collapse::colons',    ':collapse:colons',    "Collapsing colons"),
-		('...more:dots',        ':more:dots',          "More than 3 dots are ignored"),
-		('invalid:---:chars',   ':invalid:chars',      "Invalid characters are removed before collapsing");
+is resolve-name('sample:page', '.:', pages => (':sample:sample',)), ':sample:sample', "Namespace links look for ns:ns pages";
+is resolve-name('sample:page', '.:', pages => (':sample',)), ':sample', "Namespace links look for ns pages";
+is resolve-name('sample:page', '.:', pages => ('sample:.',)), ':sample', "using link style pages still works";
 
-	for @pages -> ($code, $expect, $desc) {
-		is DokuWiki::PageName.new($code), $expect, $desc;
-	}
-};
-
-subtest "Lookups" => {
-	plan 10 + 4;
-
-	# FIXME: improve test
-	my @lookups =
-		('sample:page', 'follow',        ':sample:follow',     "Simple link"),
-		('sample:page', '.same:space',   ':sample:same:space', "Same namespace link"),
-		('sample:page', '..previous',    ':previous',          "Previous namespace"),
-		('sample:page', 'absolute:link', ':absolute:link',     "Absolute link"),
-		('sample:page', '.:a::b',        ':sample:a:b',        "Collapse colons"),
-		('sample:page', '..:..:ignored:..::index', ':index',   "Links do not overflow"),
-		('playground:playground', '.',   ':playground',        "Single dot links to a page and not the namespace start"),
-		('playground:playground', '::',  ':start',             "Only-colon link goes to root start"),
-		('sample:page', '',              ':sample:page',       "Empty link links to current page"),
-		('sample:page', '---',           ':sample',      "Link of invalid characters is treated as `.`" );
-
-	for @lookups -> ($start, $link, $expect, $desc) {
-		is resolve-name($start, $link), $expect, $desc;
-	}
-
-	# IDEA: move this to its own subtest for option checking
-	is resolve-name('sample:page', '.:', startpage => 'index'), ':sample:index', "Setting the start optional key works";
-	is resolve-name('sample:page', '.:', pages => (':sample:sample',)), ':sample:sample', "Namespace links look for ns:ns pages";
-	is resolve-name('sample:page', '.:', pages => (':sample',)), ':sample', "Namespace links look for ns pages";
-	is resolve-name('sample:page', '.:', pages => ('sample:.',)), ':sample', "using link style pages still works";
-};
+is resolve-name('sample:page', '.:', pages => ('sample'), startpage => 'index'), ':sample', "Using both startpage and pages options, works";
