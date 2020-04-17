@@ -3,13 +3,15 @@ This file defines Roles/Interfaces used by classes related to L<DokuWiki::PageNa
 They exist to enforce type checks or resolve circular dependencies.
 
 role Can::PageName::App {
-	method page-exists { 1; !!! } #= HACK: if it were a stub, it wouldn't clone correctly
-}
-
-sub can-pagename-config ($v --> Bool) is export(:func) {
-	qw<startpage sepchar autoplural useslash> ⊆ $v.^methods».name
+	method page-exists { ... }
+	method add-page { ... }
+	method new-pagename { ... }
 }
 
 # Do not try to export it, as it will export it as the 'Config' symbol
-#| Similar to a Haskell type class (?), this checks that the object has the right methods
-subset Can::PageName::Config where can-pagename-config($_);
+role Can::PageName::Config {
+	method startpage { ... }
+	method sepchar { ... }
+	method autoplural { ... }
+	method useslash { ... }
+}

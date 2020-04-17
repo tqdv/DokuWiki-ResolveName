@@ -32,7 +32,7 @@ subtest "Roundtrips" => {
 };
 
 subtest "Lookups" => {
-	plan 10 + 1;
+	plan 10 + 4;
 
 	# FIXME: improve test
 	my @lookups =
@@ -53,4 +53,7 @@ subtest "Lookups" => {
 
 	# IDEA: move this to its own subtest for option checking
 	is resolve-name('sample:page', '.:', startpage => 'index'), ':sample:index', "Setting the start optional key works";
+	is resolve-name('sample:page', '.:', pages => (':sample:sample',)), ':sample:sample', "Namespace links look for ns:ns pages";
+	is resolve-name('sample:page', '.:', pages => (':sample',)), ':sample', "Namespace links look for ns pages";
+	is resolve-name('sample:page', '.:', pages => ('sample:.',)), ':sample', "using link style pages still works";
 };

@@ -1,3 +1,5 @@
+use DokuWiki::PageName::Can;
+
 # This is not a module because I can't seem to exporting
 # Nested classes correctly
 # An old comment explaining my struggles:
@@ -13,7 +15,7 @@ Maybe this could be fixed in the META6, but I'm not sure
 =head2 DokuWiki::PageName::Config and Can::PageName::Config
 Type object and check for the $!config attribute
 
-class DokuWiki::PageName::Config {
+class DokuWiki::PageName::Config does Can::PageName::Config {
 	has Str $.startpage = 'start';
 	has Str $.sepchar = '_';
 	has Bool $.autoplural = False;

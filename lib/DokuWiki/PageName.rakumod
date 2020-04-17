@@ -36,7 +36,7 @@ multi method new (@parts is copy, :$config, :$app) {
 	my $conf := $config // $app.?config // DokuWiki::PageName::Config.new;
 	my $is-namespace-page = @parts[*-1] eq '' // False;
 
-	# In this order.
+	# Resolve things in this order
 	@parts .= &collapse-dots;
 	@parts .= map: { colon-normalize($_) || Slip.new };
 	my $name =
@@ -48,15 +48,15 @@ multi method new (@parts is copy, :$config, :$app) {
 }
 
 #| Creates a PageName object from a link, assuming it's absolute
-multi method new (DokuWiki::PageLink $link, :$config) {
-	self.new: ($link.parts), |with-val :$config
+multi method new (DokuWiki::PageLink $link, :$config, :$app) {
+	self.new: ($link.parts), |with-val :$config, |with-val :$app
 }
 
 #| Creates a PageName object from a PageLink string
-multi method new (Str $string, :$config) {
+multi method new (Str $string, :$config, :$app) {
 	#| A page name is the same as a link, we just always consider it to start at root
 	#| Since the string might be in the form of C<..link> or C<.link>, we let PageLink split that for us
-	self.new: DokuWiki::PageLink.new($string), |with-val :$config
+	self.new: DokuWiki::PageLink.new($string), |with-val :$config, |with-val :$app
 }
 
 =head2 CONVERSIONS
@@ -67,11 +67,7 @@ method gist { ':' ~ (|@!namespaces, $!name).join(':') }
 
 #| Make sure that array attributes are cloned correctly
 method clone (--> DokuWiki::PageName) {
-	self.bless:
-		namespaces => @!namespaces.clone,
-		|with-val config => $!config.clone,
-		:$!name,
-		|with-val app => $!app.clone
+	nextwith namespaces => @!namespaces.clone
 }
 
 =head2 METHODS
@@ -86,17 +82,16 @@ multi method resolve-name (DokuWiki::PageLink $link --> DokuWiki::PageName) {
 	} else {
 		# Otherwise, handle relative link
 		my @parts = |@!namespaces, |$link.parts;
-
 		my $is-namespace-link = @parts[*-1] eq '' // False;
+
+		# Normalize @parts
 		@parts .= &collapse-dots; #= Before resolve-namespace-page but after is-namespace-link
 		@parts .= map: { colon-normalize($_) || Slip.new };
 
 		my $name =
-			(if $is-namespace-link { self.resolve-namespace-page: @parts, :$!config })
+			(if $is-namespace-link { self.resolve-namespace-page: @parts })
 			// @parts.pop
-			// $!config.startpage; #= If we get an empty list, which is surprising
-
-		$name .= &colon-normalize;
+			// $!config.startpage; #= If we get an empty list
 
 		# Check -s variant of pagename if we didn't resolve it
 		if !$is-namespace-link && $!config.autoplural {
@@ -114,24 +109,30 @@ multi method resolve-name (Str $target --> DokuWiki::PageName) {
 	self.resolve-name: DokuWiki::PageLink.new($target)
 }
 
-#| Resolve a link that looks like `playground:` aka. a namespace link. Returns the pagename
+#| Resolve a link that looks like `playground:` aka. a namespace link. Returns the pagename. It can modify @ns if needed
 multi method resolve-namespace-page (DokuWiki::PageName:D: @ns --> Str) {
-	# TOCHECK: FIXME: infinite loop
-	self.resolve-namespace-page: @ns, :$!config
+	self.resolve-namespace-page: @ns, :$!config, :$!app
 }
 
-#| Same as resolve-namespace-page, but without accessing attributes
-multi method resolve-namespace-page (DokuWiki::PageName:_: @ns, :$config!, :$app --> Str) {
-	sub if-page-exists ($name) {
-		$name if $app.?page-exists(|@ns, $name)
+#| Same as resolve-namespace-page, but without accessing attributes. It can modify @ns if needed
+multi method resolve-namespace-page (@ns, :$config!, :$app --> Str) {
+	my Str $name;
+
+	with $app {
+		sub if-page-exists ($name) {
+			$name if $app.page-exists(|@ns, $name)
+		}
+
+		# Try the following pages if they exist
+		$name =
+			if-page-exists($config.startpage)     #= namespace: -> namespace:start
+			#| This will fail if @parts == 0, but that's OK
+			// if-page-exists(@ns[*-1])           #= namespace: -> namespace:namespace
+			// (@ns.pop if $app.page-exists(@ns)) #= namespace: -> namespace
+			// Str; #= leave undefined
 	}
 
-	my Str $name =
-		if-page-exists($config.startpage) #= namespace: -> namespace:start
-		#| This will fail if @parts == 0, but that's OK
-		// if-page-exists(@ns[*-1]) #= namespace: -> namespace:namespace
-		// if-page-exists(Slip.new) #= namespace: -> namespace
-		// $config.startpage;
+	$name //= $config.startpage; #= default when pages don't exist
 
 	return $name;
 }
