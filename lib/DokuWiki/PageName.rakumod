@@ -1,9 +1,9 @@
-use DokuWiki::PageLink;
 use DokuWiki::Utils;
-use DokuWiki::Config;
+use DokuWiki::Operators;
+
+use DokuWiki::PageLink;
 use DokuWiki::PageName::Config;
 use DokuWiki::PageName::Can;
-use DokuWiki::Operators;
 
 =begin SYNOPSIS
 use DokuWiki::PageName;

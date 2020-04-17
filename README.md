@@ -29,8 +29,7 @@ This module provides a functional and object-oriented interface to resolving Dok
 
 ## Roadmap
 
-* Support correct resolution of namespace links given a list of existing pages
-* Support DokuWiki options `useslash`, `autoplural`, `sepchar`
+* Support DokuWiki options `useslash`, `sepchar`
 * Remember to lowercase the pagename, and collapse sepchars, semi-colons are valid separators (cf. <https://xref.dokuwiki.org/reference/dokuwiki/_functions/cleanid.html>)
 
 ## Caveats

@@ -3,7 +3,7 @@ use DokuWiki::PageName;
 use DokuWiki::PageLink;
 use DokuWiki::ResolveName;
 
-plan 10 + 1 + 3 + 1;
+plan 10 + (1 + 3 + 1) + 2;
 
 my @lookups =
 	('sample:page', 'follow',        ':sample:follow',     "Simple link"),
@@ -15,16 +15,22 @@ my @lookups =
 	('playground:playground', '.',   ':playground',        "Single dot links to a page and not the namespace start"),
 	('playground:playground', '::',  ':start',             "Only-colon link goes to root start"),
 	('sample:page', '',              ':sample:page',       "Empty link links to current page"),
-	('sample:page', '---',           ':sample',      "Link of invalid characters is treated as `.`" );
+	('sample:page', '---',           ':sample',            "Link of invalid characters is treated as `.`" );
 
 for @lookups -> ($start, $link, $expect, $desc) {
 	is resolve-name($start, $link), $expect, $desc;
 }
 
+# Test each option
+
 is resolve-name('sample:page', '.:', startpage => 'index'), ':sample:index', "Setting the start optional key works";
 
 is resolve-name('sample:page', '.:', pages => (':sample:sample',)), ':sample:sample', "Namespace links look for ns:ns pages";
-is resolve-name('sample:page', '.:', pages => (':sample',)), ':sample', "Namespace links look for ns pages";
-is resolve-name('sample:page', '.:', pages => ('sample:.',)), ':sample', "using link style pages still works";
+is resolve-name('sample:page', '.:', pages => (':sample',)),        ':sample',        "Namespace links look for ns pages";
+is resolve-name('sample:page', '.:', pages => ('sample:.',)),       ':sample',        "using link style pages still works";
 
+is resolve-name('start', 'name', pages => ('names'), :autoplural), ':names', "Autoplural works";
+
+# Multiple options at once
+is resolve-name('sample:page', ':', pages => ('indexs'), startpage => 'index', :autoplural), ':index', "Autoplural doesn't interfere with startpage";
 is resolve-name('sample:page', '.:', pages => ('sample'), startpage => 'index'), ':sample', "Using both startpage and pages options, works";
