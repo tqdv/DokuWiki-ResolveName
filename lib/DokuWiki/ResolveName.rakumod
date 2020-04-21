@@ -12,7 +12,7 @@ resolve-name('current:page', '.link:target') #> ':current:link:target'
 
 # You can pass optional named arguments
 resolve-name('playground:playground', '.:',
-    pages => ('start', 'playground', 'playground:playground')
+    pages => ('start', 'playground', 'playground:playground'),
     startpage => 'index'
 ) #> ':playground'
 =end SYNOPSIS
@@ -25,7 +25,9 @@ resolve-name('playground:playground', '.:',
 Optional named arguments:
 - C<startpage> corresponds to DokuWiki's startpage config option.
 - C<pages> is the list of existing pages. It is used for namespace link resolution
-
+- C<sepchar> is the character used to replace invalid characters (refer to DokuWiki's docs)
+- C<useslash> is the option whether to allow slashes as valid namespace separators
+- C<autoplural> is the option that checks whether a -s variant of a page exists when you link to it
 =end para
 
 #| Functional interface

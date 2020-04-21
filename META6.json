@@ -1,7 +1,7 @@
 {
   "name": "DokuWiki::ResolveName",
   "description": "Resolve relative and absolute DokuWiki page links",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "perl": "6.*",
   "authors": [
     "Tilwa Qendov"
@@ -11,8 +11,13 @@
   "build-depends": [],
   "test-depends": [],
   "provides": {
+    "DokuWiki::Operators": "lib/DokuWiki/Operators.rakumod",
+    "DokuWiki::PageId": "lib/DokuWiki/PageId.rakumod",
     "DokuWiki::PageLink": "lib/DokuWiki/PageLink.rakumod",
     "DokuWiki::PageName": "lib/DokuWiki/PageName.rakumod",
+    "DokuWiki::PageName::App": "lib/DokuWiki/PageName/App.rakumod",
+    "DokuWiki::PageName::Can": "lib/DokuWiki/PageName/Can.rakumod",
+    "DokuWiki::PageName::Config": "lib/DokuWiki/PageName/Config.rakumod",
     "DokuWiki::ResolveName": "lib/DokuWiki/ResolveName.rakumod",
     "DokuWiki::Utils": "lib/DokuWiki/Utils.rakumod"
   },
@@ -22,5 +27,5 @@
     "DokuWiki"
   ],
   "api": "0",
-  "source-url": "gitL//github.com/tqdv/DokuWiki-ResolveName.git"
+  "source-url": "git://github.com/tqdv/DokuWiki-ResolveName.git"
 }
