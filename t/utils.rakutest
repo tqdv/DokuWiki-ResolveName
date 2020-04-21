@@ -1,0 +1,20 @@
+use Test;
+use DokuWiki::Utils;
+
+plan 5 + 2;
+
+diag "collapse-dots tests";
+
+my @dots =
+		(['', '', 'from', '', 'root', ''],  ['from', 'root'],   "Removes empty"),
+		(['..', '..'],                      [],                 "Doesn't directly overflow"),
+		(['ns', '..', '..'],                [],                 "Doesn't indirectly overflow"),
+		(['.', 'current', '.'],             ['current'],        "Ignores dots"),
+		(['root', 'first', '..', 'second'], ['root', 'second'], "Double dots go back a step");
+
+for @dots -> ($code, $expect, $desc) {
+	is collapse-dots($code), $expect, $desc;
+}
+
+is ltrim-colon(':aa'), 'aa', "ltrim works";
+is ltrim-colon('::aa'), ':aa', "ltrim-colon only eats one";

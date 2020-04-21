@@ -1,0 +1,50 @@
+use Test;
+use DokuWiki::PageId;
+use DokuWiki::PageName::Config;
+
+plan (8 + 2) + (3 + 2);
+
+diag "colon-normalize tests";
+
+my $config = DokuWiki::PageName::Config.new;
+
+my @colons =
+	('aaa', 'aaa', "Valid id part is unchanged"),
+	('ABC', 'abc', "String is lowercased"),
+	(" page\t", 'page', "Whitespace is trimmed"),
+	('.page-', 'page', "Invalid characters are trimmed 1/2"),
+	('=page_', 'page', "Invalid characters are trimmed 2/2"),
+	('page___name', 'page_name', "Multiple underscores are collapsed to a single one"),
+	('page!@#$%name', 'page_name', "Invalid characters are replaced by a single underscore"),
+	('page!_!name', 'page_name', "Invalid characters and underscores are both replaced by the same single underscore");
+
+for @colons -> ($str, $expect, $desc) {
+	is $config.&colon-normalize($str), $expect, $desc;
+}
+
+{
+	let $config = DokuWiki::PageName::Config.new: sepchar => 'a';
+	is $config.&colon-normalize('page___name'), 'page___name', "Multiple underscores are not simplified when it's not the sepchar";
+	is $config.&colon-normalize('  page  '), 'apagea', "Not using [._-] as sepchar allows leading sepchars";
+
+}
+
+diag "pageid tests";
+
+my @pageids =
+	('page:id', 'page:id', "Valid page id is unchanged"),
+	('::page',  'page',    "Empty parts are removed"),
+	('',        '',        "Empty returns empty");
+
+for @pageids -> ($str, $expect, $desc) {
+	is $config.&new-pageid($str).join(':'), $expect, $desc;
+}
+
+{
+	let $config = DokuWiki::PageName::Config.new: sepchar => 'a';
+	is $config.&new-pageid('  page:  :name  ').join(':'), 'page:a:name', "Trims outer whitespace even when sepchar is not a symbol";
+}
+{
+	let $config = DokuWiki::PageName::Config.new: useslash => True;
+	is $config.&new-pageid('page/name').join(':'), 'page:name', ":useslash works";
+}

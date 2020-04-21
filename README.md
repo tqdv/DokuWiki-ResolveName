@@ -26,14 +26,15 @@ This module provides a functional and object-oriented interface to resolving Dok
 **WARN:** Resolving namespace links (those that end in a colon eg. `namespace:`) requires knowledge of some other existing pages, notably `namespace:namespace` and `namespace`.
 
 * Supports custom [startpage values](https://www.dokuwiki.org/config:startpage), which is the default page to link to in a namespace (by default, `start`).
+* Supports DokuWiki options `useslash`, `startpage`, `sepchar` and `autoplural`
 
 ## Roadmap
 
-* Support DokuWiki options `useslash`, `sepchar`
-* Remember to lowercase the pagename, and collapse sepchars, semi-colons are valid separators (cf. <https://xref.dokuwiki.org/reference/dokuwiki/_functions/cleanid.html>)
+* Fix undiscovered bugs
 
 ## Caveats
 
+* We allow semi-colons to resolve to namespace pages in PageName when DokuWiki doesn't
 * Does not support links to sections (eg. `minecraft:carrot#usage`).
 * Does not handle accented characters the way DokuWiki does with the [deaccent option](https://www.dokuwiki.org/config:deaccent). It doesn't convert accented characters to an ASCII equivalent. This might cause bugs when a same character is encoded in different ways.
 

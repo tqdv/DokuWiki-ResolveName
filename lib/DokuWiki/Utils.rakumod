@@ -25,23 +25,10 @@ sub ltrim-colon (Str $string --> Str) is export {
 	S/^ \: // with $string;
 }
 
-#| Remove illegal characters in a page name from a string
-sub colon-normalize (Str $string is copy) is export {
-	# Trim illegal characters
-	$string ~~ s/^ <[ . \- _ ]>*  //;
-	$string ~~ s/  <[ . \- _ ]>* $//;
-
-	# Replace disallowed characters with underscores
-	$string ~~ s:g/ <-[ . \- _ ] - [a..z A..Z] - [0..9]> /_/;
-
-	return $string;
-}
-
 sub EXPORT {
 	%(
 		:&pop-null,
 		:&collapse-dots,
 		:&ltrim-colon,
-		:&colon-normalize,
 	)
 }

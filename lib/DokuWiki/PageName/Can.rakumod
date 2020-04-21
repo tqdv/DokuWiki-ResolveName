@@ -14,4 +14,6 @@ role Can::PageName::Config {
 	method sepchar { ... }
 	method autoplural { ... }
 	method useslash { ... }
+
+	method delim { (':', ';', ('/' if self.useslash)) }
 }

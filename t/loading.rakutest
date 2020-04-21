@@ -1,8 +1,9 @@
 use Test;
 
-plan 4;
+plan 5;
 
-use-ok 'DokuWiki::ResolveName', "ResolveName loads";
-use-ok 'DokuWiki::PageName',    "PageName loads";
-use-ok 'DokuWiki::PageLink',    "PageLink loads";
-use-ok 'DokuWiki::Utils',       "Utils load";
+use-ok 'DokuWiki::ResolveName',      "ResolveName loads";
+use-ok 'DokuWiki::PageName',         "PageName loads";
+use-ok 'DokuWiki::PageLink',         "PageLink loads";
+use-ok 'DokuWiki::PageName::Config', "Config loads";
+use-ok 'DokuWiki::PageName::App',    "App load";

@@ -1,0 +1,28 @@
+use Test;
+use DokuWiki::PageLink;
+use DokuWiki::PageName::Config;
+
+plan 6 + 3 + 1;
+
+my $config = DokuWiki::PageName::Config.new;
+
+my @links =
+	('simple:link',          ':simple:link',         "Link roundtrip"),
+	(':colons:and:cologne:', ':colons:and:cologne:', "Leading and trailing colons in link"),
+	('.leading:dot',         '.:leading:dot',        "Leading single dot is normalized"),
+	('..double:dot',         '..:double:dot',        "Leading double dot is normalized"),
+	('...triple:dot',        ':...triple:dot',       "Triples dots are left alone"),
+	(':',                    ':',                    "Single colon stays a single colon");
+
+for @links -> ($code, $expect, $desc) {
+	is DokuWiki::PageLink.new($code, :$config), $expect, $desc;
+}
+
+ok DokuWiki::PageLink.new('name:space:', :$config).is-namespace-link, "Colon namespace links are detected";
+ok DokuWiki::PageLink.new('a::', :$config).is-absolute, "Multiple redundant colons is absolute";
+ok DokuWiki::PageLink.new('', :$config).is-empty, "Empty link is empty";
+
+{
+	let $config = DokuWiki::PageName::Config.new: useslash => True;
+	is DokuWiki::PageLink.new(';some:thing/', :$config), ':some:thing:', "useslash works";
+}
